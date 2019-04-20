@@ -4,12 +4,12 @@
 #include "TEA5767.h"
 
 
-const char KEY[] = "c3dac95421ff4c92a041501f0dafb42d";
-const char SSID[] = "EvilCorp";
-const char PASSWORD[] = "helloworld";
+const char KEY[] = "YOUR_BLYNK_KEY";
+const char SSID[] = "YOUR_WIFI_SSID";
+const char PASSWORD[] = "YOUR_WIFI_PASSWORD";
 
-const int PIN_SCL = 0;
-const int PIN_SDA = 3;
+const int PIN_SDA = 0; // D3;
+const int PIN_SCL = 3; // Rx;
 
 TEA5767 Radio;
 
@@ -20,57 +20,31 @@ unsigned char buf[5];
 
 double currentFreq = 92.7;
 int signalLevel;
-int stereo;
 
 
-BLYNK_WRITE(V5)
-{
+BLYNK_WRITE(V5) {
 	String action = param.asStr();
+	if (action == "play") 	   { setMute(true);  }
+	else if (action == "stop") { setMute(false); }
+	else if (action == "next") { searchUp(); 	 }
+	else if (action == "prev") { searchDown();	 }
+}
 
-	if (action == "play") {
-		setMute(true);
-		// Serial.println("Play");
-	}
-	if (action == "stop") {
-		setMute(false);
-		// Serial.println("Stop");
-	}
-	if (action == "next") {
-		searchUp();
-		// Serial.println("next");
-	}
-	if (action == "prev") {
-		searchDown();
-		// Serial.println("prev");
-	}
-
-	//Blynk.setProperty(V5, "label", action);
-	Serial.print(action);
+BLYNK_WRITE(V2) {
+	tuneTo(param.asFloat());
 }
 
 void info() {
 	if (Radio.read_status(buf) == 1) {
 		currentFreq = floor(Radio.frequency_available(buf) / 100000 + .5) / 10;
 		signalLevel = Radio.signal_level(buf);
-		stereo = Radio.stereo(buf);
 
-		// Serial.print("Tuned to : ");
-		// Serial.print(currentFreq);
 		Blynk.virtualWrite(V0, currentFreq);
-		// Serial.print("\t Signal strength: ");
-		// Serial.println(signalLevel);		
 		Blynk.virtualWrite(V1, signalLevel);
-
-		// if (stereo)
-		// 	Serial.println("(stereo)\n");
-		// else
-		// 	Serial.println("(mono)\n");
-
-		if (g_muted)
-			Serial.println("(muted)\n");
+		// Serial.println(signalLevel);
 	}
 	else {
-		Serial.println("Radio Not Connected !\n");
+		//// Serial.println("Radio Not Connected !\n");
 		Blynk.virtualWrite(V0, "Radio Not Connected !");
 	}
 }
@@ -92,41 +66,31 @@ void searchDown() {
 	search_mode = 1;
 	search_direction = TEA5767_SEARCH_DIR_DOWN;
 	Radio.search_down(buf);
-	Serial.println("Searching down ..\n");
+	// Serial.println("Searching down ..\n");
 }
 
 void searchUp() {
 	search_mode = 1;
 	search_direction = TEA5767_SEARCH_DIR_UP;
 	Radio.search_up(buf);
-	Serial.println("Searching up ..\n");
+	// Serial.println("Searching up ..\n");
 }
 
 void tuneTo(double freq) {
-	Serial.print("Tuning to: ");
-	Serial.println(freq);
+	// Serial.print("Tuning to: ");
+	// Serial.println(freq);
 	Radio.set_frequency(freq);
 }
 
 void setup() {
-	Serial.begin(115200);
+	// Serial.begin(115200);
 	Blynk.begin(KEY, SSID, PASSWORD);
-	Wire.begin();
+	Wire.begin(PIN_SDA, PIN_SCL);
 	Radio.init();
 	Radio.set_frequency(currentFreq);
 }
 
 void loop() {
 	Blynk.run();
-
-	// if (search_mode == 1) {
-	// 	if (Radio.read_status(buf) == 1) {
-	// 		if (Radio.process_search(buf, search_direction) == 1) {
-	// 			search_mode = 0;
-	// 		}
-	// 	}
-
-	// }
-	
 	info();
 }
