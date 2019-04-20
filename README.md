@@ -69,7 +69,9 @@ The radio will be controlled using Blynk, an app that you can use to build IoT d
 Install Blynk from play/app store and create an account.
 Blynk will email you an API key. You need to paste this to code.
 
-Click the link to copy my Blynk UI to your app : link
+Scan this QR code to clone my Blynk UI
+![image](images/blynk.jpg)
+
 You can download the code from here
 You have to also also add your WiFi credentials in the code .
 
