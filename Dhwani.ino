@@ -41,10 +41,8 @@ void info() {
 
 		Blynk.virtualWrite(V0, currentFreq);
 		Blynk.virtualWrite(V1, signalLevel);
-		// Serial.println(signalLevel);
 	}
 	else {
-		//// Serial.println("Radio Not Connected !\n");
 		Blynk.virtualWrite(V0, "Radio Not Connected !");
 	}
 }
@@ -66,24 +64,19 @@ void searchDown() {
 	search_mode = 1;
 	search_direction = TEA5767_SEARCH_DIR_DOWN;
 	Radio.search_down(buf);
-	// Serial.println("Searching down ..\n");
 }
 
 void searchUp() {
 	search_mode = 1;
 	search_direction = TEA5767_SEARCH_DIR_UP;
 	Radio.search_up(buf);
-	// Serial.println("Searching up ..\n");
 }
 
 void tuneTo(double freq) {
-	// Serial.print("Tuning to: ");
-	// Serial.println(freq);
 	Radio.set_frequency(freq);
 }
 
 void setup() {
-	// Serial.begin(115200);
 	Blynk.begin(KEY, SSID, PASSWORD);
 	Wire.begin(PIN_SDA, PIN_SCL);
 	Radio.init();
